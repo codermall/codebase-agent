@@ -5,13 +5,14 @@ import type {BaseMessage} from '@langchain/core/messages'
 import {MessagesZodMeta} from '@langchain/langgraph'
 import {registry} from '@langchain/langgraph/zod'
 
-export const CodebaseAgentState = z.object({
-  messages: z.array(z.custom<BaseMessage>())
-  .register(registry, MessagesZodMeta),
+// 对话级消息
+const MessagesState = () =>
+  z.array(z.custom<BaseMessage>())
+   .register(registry, MessagesZodMeta) // 元信息是最重要的，langgraph 会阅读这个元信息，确认是否是消息对话，如果不是消息对话，就会覆盖之前的消息，你会丢失上下文
+
+export const CodebaseAgentStateSchema = z.object({
+  messages: MessagesState(),
+  plan: z.array(z.string()).optional(),
 })
 
-export type CodebaseAgentStateType = z.infer<typeof CodebaseAgentState>
-
-export interface AgentState {
-  messages: BaseMessage[]
-}
+export type AgentState = z.infer<typeof CodebaseAgentStateSchema>

@@ -14,6 +14,8 @@ export default class Ask extends Command {
     const agent = createCodebaseAgent()
     const result = await agent.invoke({
       messages: [new HumanMessage(args.question)]
+    }, {
+      recursionLimit: 50
     })
 
     const final = [...result.messages]
@@ -26,7 +28,7 @@ export default class Ask extends Command {
 
     if (final) {
       this.log(
-        String(final.content).replace(/^FINAL:\s*/, '')
+        // String(final.content).replace(/^FINAL:\s*/, '')
       )
     } else {
       this.log('未生成最终答案')
