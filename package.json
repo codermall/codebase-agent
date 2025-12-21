@@ -1,0 +1,86 @@
+{
+  "name": "codebase-agent",
+  "description": "A new CLI generated with oclif",
+  "version": "0.0.0",
+  "author": "马林",
+  "bin": {
+    "ag": "./bin/run.js"
+  },
+  "exports": {
+    ".": "./index.js"
+  },
+  "bugs": "https://github.com/Projects/codebase-agent/issues",
+  "dependencies": {
+    "@langchain/core": "^1.1.6",
+    "@langchain/langgraph": "^1.0.7",
+    "@langchain/openai": "^1.2.0",
+    "@oclif/core": "^4",
+    "@oclif/plugin-help": "^6",
+    "@oclif/plugin-not-found": "^3.2.73",
+    "@oclif/plugin-plugins": "^5",
+    "langchain": "^1.2.1",
+    "openai": "^6.14.0",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "@eslint/compat": "^1",
+    "@oclif/prettier-config": "^0.2.1",
+    "@oclif/test": "^4",
+    "@types/chai": "^4",
+    "@types/mocha": "^10",
+    "@types/node": "^18",
+    "chai": "^4",
+    "eslint": "^9",
+    "eslint-config-oclif": "^6",
+    "eslint-config-prettier": "^10",
+    "mocha": "^10",
+    "oclif": "^4",
+    "shx": "^0.3.3",
+    "ts-node": "^10",
+    "tsdown": "^0.18.1",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "./bin",
+    "./dist",
+    "./oclif.manifest.json"
+  ],
+  "homepage": "https://github.com/Projects/codebase-agent",
+  "keywords": [
+    "oclif"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "type": "module",
+  "oclif": {
+    "bin": "ag",
+    "dirname": "ag",
+    "commands": "./dist/commands",
+    "plugins": [
+      "@oclif/plugin-help",
+      "@oclif/plugin-plugins",
+      "@oclif/plugin-not-found"
+    ],
+    "topicSeparator": " ",
+    "topics": {
+      "hello": {
+        "description": "Say hello to the world and others"
+      }
+    }
+  },
+  "repository": "Projects/codebase-agent",
+  "scripts": {
+    "build": "shx rm -rf dist && tsdown",
+    "dev": "tsdown --watch",
+    "lint": "eslint",
+    "postpack": "shx rm -f oclif.manifest.json",
+    "posttest": "pnpm run lint",
+    "prepack": "oclif manifest && oclif readme",
+    "test": "mocha --forbid-only \"test/**/*.test.ts\"",
+    "version": "oclif readme && git add README.md"
+  },
+  "types": "dist/index.d.ts"
+}

@@ -1,0 +1,1 @@
+{"root":["./src/index.ts","./src/agent/index.ts","./src/agent/llm.ts","./src/agent/prompt.ts","./src/agent/state.ts","./src/agent/tools/index.ts","./src/agent/tools/listfiletool.ts","./src/agent/tools/readfiletool.ts","./src/commands/ask/index.ts","./src/commands/hello/index.ts","./src/commands/hello/world.ts"],"errors":true,"version":"5.9.3"}
