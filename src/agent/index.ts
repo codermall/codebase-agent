@@ -9,9 +9,7 @@ export function createCodebaseAgent() {
   const graph = new StateGraph(CodebaseAgentStateSchema)
     .addNode('llm', llmNode)
     .addNode('tool', toolNode)
-    .addNode('planner', PlanNode)
-    .addEdge(START, 'planner')
-    .addEdge('planner', 'llm')
+    .addEdge(START, 'llm')
     .addConditionalEdges('llm', shouldContinue, ['tool', END])
     .addEdge('tool', 'llm')
   

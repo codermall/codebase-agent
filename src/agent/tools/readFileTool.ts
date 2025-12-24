@@ -3,6 +3,10 @@ import { z } from "zod";
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
+export const READ_FILE_SCHEMA = z.object({
+  filePath: z.string().describe("文件相对路径")
+})
+
 // 阅读文件的工具
 export const readFileTool = tool(
   async ({filePath}) => {
@@ -14,9 +18,7 @@ export const readFileTool = tool(
   {
     description: '通过文件相对路径阅读本地源代码文件',
     name: 'readFile',
-    schema: z.object({
-      filePath: z.string().describe("文件相对路径"),
-    }),
+    schema: READ_FILE_SCHEMA
   }
 )
 

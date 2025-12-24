@@ -23,6 +23,9 @@ export const llmNode = async (state: AgentState) => {
   console.error('==== LLM NODE OUTPUT ====')
   console.error(res.content)
   return {
-    messages: [res]
+    ...state,
+    messages: [res],
+    toolUsage: state.toolUsage ?? { count: 0 },
+    plan: state.plan ?? []
   }
 }

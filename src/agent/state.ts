@@ -13,6 +13,9 @@ const MessagesState = () =>
 export const CodebaseAgentStateSchema = z.object({
   messages: MessagesState(),
   plan: z.array(z.string()).optional(),
+  toolUsage: z.object({
+    count: z.number().default(0), // 工具调用次数
+  })
 })
 
 export type AgentState = z.infer<typeof CodebaseAgentStateSchema>
