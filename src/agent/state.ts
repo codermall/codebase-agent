@@ -15,6 +15,7 @@ export const CodebaseAgentStateSchema = z.object({
   plan: z.array(z.string()).optional(),
   toolUsage: z.object({
     count: z.number().default(0), // 工具调用次数
+    visitedPaths: z.set(z.string()).default(new Set()), // 访问过的路径
   })
 })
 

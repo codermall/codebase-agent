@@ -25,7 +25,8 @@ export const llmNode = async (state: AgentState) => {
   return {
     ...state,
     messages: [res],
-    toolUsage: state.toolUsage ?? { count: 0 },
+    toolUsage: state.toolUsage ?? { count: 0, visitedPaths: new Set() },
     plan: state.plan ?? []
+
   }
 }

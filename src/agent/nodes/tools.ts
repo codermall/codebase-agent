@@ -2,6 +2,7 @@ import type { AgentState } from '../state'
 import { AIMessage, ToolMessage} from '@langchain/core/messages'
 import { toolsMap, TOOLS_SCHEMA } from '../tools'
 import { resolveSafePath } from '../utils/safePath'
+import { normalizeToolResult } from '../utils/safeResultTool'
 
 const ALLOWED_TOOLS = new Set(Object.keys(toolsMap))
 const MAX_TOTAL_TOOL_CALLS = 20
@@ -25,11 +26,13 @@ export const toolNode = async (state: AgentState) => {
 
 
   const results: ToolMessage[] = []
+  const currentVisitedPaths = new Set()
   for (const call of last.tool_calls ?? []) { 
     // 预算限制
     if (state.toolUsage.count >= MAX_TOTAL_TOOL_CALLS) {
       return {
         messages: [
+          ...results,
           new ToolMessage({
             tool_call_id: call.id!,
             content: 'Error: Tool call limit reached.'
@@ -37,7 +40,6 @@ export const toolNode = async (state: AgentState) => {
         ]
       }
     }
-    const call_name = call.name
     // 1. 白名单 - 校验工具是否在允许范围内
     if (!ALLOWED_TOOLS.has(call.name)) {
       return {
@@ -80,19 +82,39 @@ export const toolNode = async (state: AgentState) => {
     }
 
     // 路径重复访问？
-    
+    if (state.toolUsage.visitedPaths.has(safePath)) {
+      return {
+        messages: [
+          new ToolMessage({
+            tool_call_id: call.id!,
+            content: `Error: Path "${safePath}" has already been visited.`,
+          })
+        ]
+      }
+    } else {
+      currentVisitedPaths.add(safePath) // 保存
+    }
+
     const tool = toolsMap[call.name]
     // 使用生成的参数执行工具
     // @ts-ignore
-    const too_result = await tool.invoke(call)
-    // tool_result 校验？
-    results.push(too_result)
+    const too_result = await tool.invoke({
+      ...call,
+      args,
+    })
+    // tool_result 校验
+    results.push(normalizeToolResult(too_result))
   }
 
   return {
+    ...state,
     messages: results, 
     toolUsage: { 
-      count: state.toolUsage.count + results.length 
+      count: state.toolUsage.count + results.length,
+      visitedPaths: new Set([
+        ...state.toolUsage.visitedPaths, // 上一次的
+        ...currentVisitedPaths // 本次的
+      ])
     }
   }
 }
