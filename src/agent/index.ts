@@ -1,6 +1,6 @@
 import { StateGraph, END, START} from '@langchain/langgraph'
 import {CodebaseAgentStateSchema} from './state'
-import {shouldContinue} from './shouldContinue'
+import {shouldContinue} from './nodes/shouldContinue'
 import {PlanNode, llmNode, toolNode} from './nodes'
 
 
