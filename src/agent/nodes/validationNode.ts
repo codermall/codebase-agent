@@ -132,15 +132,18 @@ export async function validationNode(state: AgentState) {
   
 }
 
-let hasRg = false
+let hasRg: boolean | null = null
 
 // 检查 ripgrep 是否可用
 async function hasRipgrep(): Promise<boolean> {
-  if(hasRg) return true // 不用每次都验证 - 一次足矣
+  if(hasRg !== null) return hasRg // 不用每次都验证 - 一次足矣
   return new Promise((resolve) => {
     const rg = spawn('rg', ['--version'])
     
-    rg.on('error', () => resolve(false))
+    rg.on('error', () => {
+      hasRg = false
+      resolve(false)
+    })
     
     rg.on('exit', (code) => {
       hasRg = code === 0
@@ -159,27 +162,61 @@ async function searchFilesWithRg(files: string[] | string) {
   // eg: [src/agent/nodes/changeIntentNode.ts] -> [changeIntentNode]
   const filesArray = (Array.isArray(files) ? files : [files]).map(p => path.basename(p, path.extname(p)))
   return new Promise((resolve, reject) => {
-    const rg = spawn('rg', [filesArray.join('|'), '--json'])
+    const rg = spawn('rg', [
+      filesArray.join('|'), 
+      '.',
+      '--json',
+      // 排除常见的非源码目录
+      '--glob=!node_modules',
+      '--glob=!.git',
+      '--glob=!dist',
+      '--glob=!build',
+      '--glob=!coverage',
+      '--glob=!*.log',
+      '--glob=!*.min.js',
+      '--glob=!package-lock.json',
+      '--glob=!yarn.lock',
+      '--glob=!test',
+      '--glob=!*.yaml'
+    ], {
+      cwd: process.cwd(),  // 指定工作目录
+      stdio: 'pipe'
+    })
+
+    let output = ''
+    let errorOutput = ''
 
     rg.on('error', (err) => {
       reject(err)
     })
 
-    rg.on('exit', (code) => {
-      if(code !== 0) {
-        reject(new Error(`ripgrep search failed with code ${code}`))
+    rg.on('close', (code, signal) => {
+      // ripgrep 的退出码：
+      // 0: 找到匹配
+      // 1: 没找到匹配
+      // 2: 错误
+      if (code === 0 || code === 1) {
+        // 正常退出（找到或没找到）
+        resolve(output)
+      } else {
+        reject(new Error(`ripgrep search failed with code ${code}: ${errorOutput}`))
       }
     })
 
+    // 收集所有输出
     rg.stdout.on('data', (data) => {
-      resolve(data.toString())
+      output += data.toString()
     })
 
     // 设置超时，防止卡住
-    setTimeout(() => {
-      rg.kill()
-      reject(new Error('ripgrep search timeout'))
-    }, 10000)
+    // const timeout = setTimeout(() => {
+    //   rg.kill()
+    //   reject(new Error('ripgrep search timeout'))
+    // }, 10000)
+    // 清理超时
+    // rg.on('close', () => {
+    //   clearTimeout(timeout)
+    // })
   })
 }
 

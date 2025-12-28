@@ -1,7 +1,7 @@
 import { StateGraph, END, START} from '@langchain/langgraph'
 import {CodebaseAgentStateSchema} from './state'
 import {shouldContinue} from './nodes/shouldContinue'
-import {PlanNode, llmNode, toolNode, changeIntentNode, impactAnalysisNode} from './nodes'
+import {PlanNode, llmNode, toolNode, changeIntentNode, impactAnalysisNode, validationNode} from './nodes'
 
 
 
@@ -9,10 +9,12 @@ export function createCodebaseAgent() {
   const graph = new StateGraph(CodebaseAgentStateSchema)
     .addNode('changeIntentNode', changeIntentNode)
     .addNode('impactAnalysisNode', impactAnalysisNode)
+    .addNode('validationNode', validationNode)
     // .addNode('llm', llmNode)
     .addNode('tool', toolNode)
     .addEdge(START, 'changeIntentNode')
-    .addEdge('changeIntentNode', 'impactAnalysisNode')
+    .addEdge('changeIntentNode', 'validationNode')
+    .addEdge('validationNode', 'impactAnalysisNode')
     .addConditionalEdges('impactAnalysisNode', shouldContinue, ['tool', END])
     .addEdge('tool', 'impactAnalysisNode')
     // .addEdge('impactAnalysisNode', 'llm')
