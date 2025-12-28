@@ -1,0 +1,495 @@
+{
+  "type": "begin",
+  "data": {
+    "path": {
+      "text": "src/agent/index.ts"
+    }
+  }
+}
+{
+  "type": "match",
+  "data": {
+    "path": {
+      "text": "src/agent/index.ts"
+    },
+    "lines": {
+      "text": "import {PlanNode, llmNode, toolNode, changeIntentNode, impactAnalysisNode} from './nodes'\n"
+    },
+    "line_number": 4,
+    "absolute_offset": 164,
+    "submatches": [
+      {
+        "match": {
+          "text": "changeIntentNode"
+        },
+        "start": 37,
+        "end": 53
+      }
+    ]
+  }
+}
+{
+  "type": "match",
+  "data": {
+    "path": {
+      "text": "src/agent/index.ts"
+    },
+    "lines": {
+      "text": "    .addNode('changeIntentNode', changeIntentNode)\n"
+    },
+    "line_number": 10,
+    "absolute_offset": 354,
+    "submatches": [
+      {
+        "match": {
+          "text": "changeIntentNode"
+        },
+        "start": 14,
+        "end": 30
+      },
+      {
+        "match": {
+          "text": "changeIntentNode"
+        },
+        "start": 33,
+        "end": 49
+      }
+    ]
+  }
+}
+{
+  "type": "match",
+  "data": {
+    "path": {
+      "text": "src/agent/index.ts"
+    },
+    "lines": {
+      "text": "    .addEdge(START, 'changeIntentNode')\n"
+    },
+    "line_number": 14,
+    "absolute_offset": 523,
+    "submatches": [
+      {
+        "match": {
+          "text": "changeIntentNode"
+        },
+        "start": 21,
+        "end": 37
+      }
+    ]
+  }
+}
+{
+  "type": "match",
+  "data": {
+    "path": {
+      "text": "src/agent/index.ts"
+    },
+    "lines": {
+      "text": "    .addEdge('changeIntentNode', 'impactAnalysisNode')\n"
+    },
+    "line_number": 15,
+    "absolute_offset": 563,
+    "submatches": [
+      {
+        "match": {
+          "text": "changeIntentNode"
+        },
+        "start": 14,
+        "end": 30
+      }
+    ]
+  }
+}
+{
+  "type": "end",
+  "data": {
+    "path": {
+      "text": "src/agent/index.ts"
+    },
+    "binary_offset": null,
+    "stats": {
+      "elapsed": {
+        "secs": 0,
+        "nanos": 21917,
+        "human": "0.000022s"
+      },
+      "searches": 1,
+      "searches_with_match": 1,
+      "bytes_searched": 1092,
+      "bytes_printed": 1140,
+      "matched_lines": 4,
+      "matches": 5
+    }
+  }
+}
+{
+  "type": "begin",
+  "data": {
+    "path": {
+      "text": "src/agent/nodes/changeIntentNode.ts"
+    }
+  }
+}
+{
+  "type": "match",
+  "data": {
+    "path": {
+      "text": "src/agent/nodes/changeIntentNode.ts"
+    },
+    "lines": {
+      "text": "export async function changeIntentNode(state: AgentState) {\n"
+    },
+    "line_number": 20,
+    "absolute_offset": 533,
+    "submatches": [
+      {
+        "match": {
+          "text": "changeIntentNode"
+        },
+        "start": 22,
+        "end": 38
+      }
+    ]
+  }
+}
+{
+  "type": "end",
+  "data": {
+    "path": {
+      "text": "src/agent/nodes/changeIntentNode.ts"
+    },
+    "binary_offset": null,
+    "stats": {
+      "elapsed": {
+        "secs": 0,
+        "nanos": 9916,
+        "human": "0.000010s"
+      },
+      "searches": 1,
+      "searches_with_match": 1,
+      "bytes_searched": 6038,
+      "bytes_printed": 353,
+      "matched_lines": 1,
+      "matches": 1
+    }
+  }
+}
+{
+  "type": "begin",
+  "data": {
+    "path": {
+      "text": "src/agent/nodes/validationNode.ts"
+    }
+  }
+}
+{
+  "type": "match",
+  "data": {
+    "path": {
+      "text": "src/agent/nodes/validationNode.ts"
+    },
+    "lines": {
+      "text": "async function searchFilesWithRg(files: string[] | string) {\n"
+    },
+    "line_number": 104,
+    "absolute_offset": 2403,
+    "submatches": [
+      {
+        "match": {
+          "text": "searchFilesWithRg"
+        },
+        "start": 15,
+        "end": 32
+      }
+    ]
+  }
+}
+{
+  "type": "match",
+  "data": {
+    "path": {
+      "text": "src/agent/nodes/validationNode.ts"
+    },
+    "lines": {
+      "text": "  // eg: [src/agent/nodes/changeIntentNode.ts] -> [changeIntentNode]\n"
+    },
+    "line_number": 105,
+    "absolute_offset": 2464,
+    "submatches": [
+      {
+        "match": {
+          "text": "changeIntentNode"
+        },
+        "start": 26,
+        "end": 42
+      },
+      {
+        "match": {
+          "text": "changeIntentNode"
+        },
+        "start": 51,
+        "end": 67
+      }
+    ]
+  }
+}
+{
+  "type": "match",
+  "data": {
+    "path": {
+      "text": "src/agent/nodes/validationNode.ts"
+    },
+    "lines": {
+      "text": "    const output = await searchFilesWithRg(filesArray)\n"
+    },
+    "line_number": 138,
+    "absolute_offset": 3318,
+    "submatches": [
+      {
+        "match": {
+          "text": "searchFilesWithRg"
+        },
+        "start": 25,
+        "end": 42
+      }
+    ]
+  }
+}
+{
+  "type": "end",
+  "data": {
+    "path": {
+      "text": "src/agent/nodes/validationNode.ts"
+    },
+    "binary_offset": null,
+    "stats": {
+      "elapsed": {
+        "secs": 0,
+        "nanos": 38208,
+        "human": "0.000038s"
+      },
+      "searches": 1,
+      "searches_with_match": 1,
+      "bytes_searched": 4786,
+      "bytes_printed": 962,
+      "matched_lines": 3,
+      "matches": 4
+    }
+  }
+}
+{
+  "type": "begin",
+  "data": {
+    "path": {
+      "text": "src/agent/nodes/index.ts"
+    }
+  }
+}
+{
+  "type": "match",
+  "data": {
+    "path": {
+      "text": "src/agent/nodes/index.ts"
+    },
+    "lines": {
+      "text": "export * from './changeIntentNode'\n"
+    },
+    "line_number": 4,
+    "absolute_offset": 69,
+    "submatches": [
+      {
+        "match": {
+          "text": "changeIntentNode"
+        },
+        "start": 17,
+        "end": 33
+      }
+    ]
+  }
+}
+{
+  "type": "end",
+  "data": {
+    "path": {
+      "text": "src/agent/nodes/index.ts"
+    },
+    "binary_offset": null,
+    "stats": {
+      "elapsed": {
+        "secs": 0,
+        "nanos": 9542,
+        "human": "0.000010s"
+      },
+      "searches": 1,
+      "searches_with_match": 1,
+      "bytes_searched": 140,
+      "bytes_printed": 304,
+      "matched_lines": 1,
+      "matches": 1
+    }
+  }
+}
+{
+  "type": "begin",
+  "data": {
+    "path": {
+      "text": "test/agent/nodes/validationNode.test.ts"
+    }
+  }
+}
+{
+  "type": "match",
+  "data": {
+    "path": {
+      "text": "test/agent/nodes/validationNode.test.ts"
+    },
+    "lines": {
+      "text": "            'src/agent/nodes/changeIntentNode.ts',\n"
+    },
+    "line_number": 16,
+    "absolute_offset": 781,
+    "submatches": [
+      {
+        "match": {
+          "text": "changeIntentNode"
+        },
+        "start": 29,
+        "end": 45
+      }
+    ]
+  }
+}
+{
+  "type": "match",
+  "data": {
+    "path": {
+      "text": "test/agent/nodes/validationNode.test.ts"
+    },
+    "lines": {
+      "text": "            'changeIntentNode.ts',\n"
+    },
+    "line_number": 17,
+    "absolute_offset": 832,
+    "submatches": [
+      {
+        "match": {
+          "text": "changeIntentNode"
+        },
+        "start": 13,
+        "end": 29
+      }
+    ]
+  }
+}
+{
+  "type": "match",
+  "data": {
+    "path": {
+      "text": "test/agent/nodes/validationNode.test.ts"
+    },
+    "lines": {
+      "text": "            // 'src/agent/nodes/changeIntentNode.tsx',\n"
+    },
+    "line_number": 18,
+    "absolute_offset": 867,
+    "submatches": [
+      {
+        "match": {
+          "text": "changeIntentNode"
+        },
+        "start": 32,
+        "end": 48
+      }
+    ]
+  }
+}
+{
+  "type": "match",
+  "data": {
+    "path": {
+      "text": "test/agent/nodes/validationNode.test.ts"
+    },
+    "lines": {
+      "text": "            // 'src/agent/nodes/changeIntentNode.js',\n"
+    },
+    "line_number": 19,
+    "absolute_offset": 922,
+    "submatches": [
+      {
+        "match": {
+          "text": "changeIntentNode"
+        },
+        "start": 32,
+        "end": 48
+      }
+    ]
+  }
+}
+{
+  "type": "match",
+  "data": {
+    "path": {
+      "text": "test/agent/nodes/validationNode.test.ts"
+    },
+    "lines": {
+      "text": "            // 'src/agent/nodes/changeIntentNode.jsx',\n"
+    },
+    "line_number": 20,
+    "absolute_offset": 976,
+    "submatches": [
+      {
+        "match": {
+          "text": "changeIntentNode"
+        },
+        "start": 32,
+        "end": 48
+      }
+    ]
+  }
+}
+{
+  "type": "end",
+  "data": {
+    "path": {
+      "text": "test/agent/nodes/validationNode.test.ts"
+    },
+    "binary_offset": null,
+    "stats": {
+      "elapsed": {
+        "secs": 0,
+        "nanos": 8334,
+        "human": "0.000008s"
+      },
+      "searches": 1,
+      "searches_with_match": 1,
+      "bytes_searched": 2570,
+      "bytes_printed": 1419,
+      "matched_lines": 5,
+      "matches": 5
+    }
+  }
+}
+{
+  "data": {
+    "elapsed_total": {
+      "human": "0.005297s",
+      "nanos": 5296583,
+      "secs": 0
+    },
+    "stats": {
+      "bytes_printed": 4178,
+      "bytes_searched": 288438,
+      "elapsed": {
+        "human": "0.000771s",
+        "nanos": 770587,
+        "secs": 0
+      },
+      "matched_lines": 14,
+      "matches": 16,
+      "searches": 39,
+      "searches_with_match": 5
+    }
+  },
+  "type": "summary"
+}

@@ -29,7 +29,7 @@ export const toolNode = async (state: AgentState) => {
   const currentVisitedPaths = new Set()
   for (const call of last.tool_calls ?? []) { 
     // 预算限制
-    if (state.toolUsage.count >= MAX_TOTAL_TOOL_CALLS) {
+    if (state.toolUsage?.count && state.toolUsage.count >= MAX_TOTAL_TOOL_CALLS) {
       return {
         messages: [
           ...results,
@@ -82,7 +82,7 @@ export const toolNode = async (state: AgentState) => {
     }
 
     // 路径重复访问？
-    if (state.toolUsage.visitedPaths.has(safePath)) {
+    if (state.toolUsage?.visitedPaths && state.toolUsage.visitedPaths.has(safePath)) {
       return {
         messages: [
           new ToolMessage({
@@ -97,22 +97,30 @@ export const toolNode = async (state: AgentState) => {
 
     const tool = toolsMap[call.name]
     // 使用生成的参数执行工具
-    // @ts-ignore
+    try {
+      // @ts-ignore
     const too_result = await tool.invoke({
       ...call,
       args,
     })
     // tool_result 校验
     results.push(normalizeToolResult(too_result))
+    } catch (err) {
+      console.error('==== Tool NODE ERROR ====', err)
+      results.push(new ToolMessage({
+        tool_call_id: call.id!,
+        content: `Error: ${String(err)}`
+      }))
+    }
   }
 
   return {
     ...state,
     messages: results, 
     toolUsage: { 
-      count: state.toolUsage.count + results.length,
+      count: state.toolUsage?.count ? state.toolUsage.count + results.length : results.length,
       visitedPaths: new Set([
-        ...state.toolUsage.visitedPaths, // 上一次的
+        ...state.toolUsage?.visitedPaths ? state.toolUsage.visitedPaths : new Set(), // 上一次的
         ...currentVisitedPaths // 本次的
       ])
     }
