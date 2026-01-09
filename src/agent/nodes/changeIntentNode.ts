@@ -9,67 +9,91 @@
   1. 总结用户变更意图「summary/motivation」
   2. 抽取用户显示给出的路径或文件线索
   3. 生成 searchHypothesis 搜索假设层
+
  */
 
 import type {AgentState, ChangeIntent} from '../state'
 
 import { SystemMessage } from '@langchain/core/messages'
+import {RunnableLambda} from '@langchain/core/runnables'
+import {StringOutputParser} from '@langchain/core/output_parsers'
 import {model} from '../llm'
+
+const systemMessage = new SystemMessage(`
+  你是一个代码库变更意图分析助手。
+  任务: 
+  - 从用户的自然语言中, 生成一个【变更意图 + 搜索假设】对象
+
+  请注意:
+  1. 不需要确认任何文件是否真实存在
+  2. 所有路径、文件名、目录都只是"搜索线索"
+  3. 输出将用于后续的代码库验证与影响分析
+  4. 不要写代码
+
+  请输出以下字段:
+
+ 【意图层】
+  - summary: 对话意图总结, 用一句话概括用户的变更意图(对关键的信息可以包含中英文信息, 比如: "筛选组件" -> "Filter、FilterComponent、query、Query" 等 )
+  - motivation: 当前对话的动机, 解释为什么要进行这个变更
+  - suspectedFiles: 用户可能直接提到的文件或路径（如果没有则为空数组）
+
+ 【搜索假设层】
+  - fileNameHints: 可能的组件名、文件名、符号名
+  - dirNameHints: 可能的目录或逻辑区域（如 components、icons 等概念性区域）
+  - entryHints: 可能引用该组件的入口（如 App、Layout、Page 等）
+  - semanticHints: 可用于搜索的语义关键词（偏抽象，不是业务词）
+
+ 【整体】
+  - confidence: 信任度, 可选值有 'high' | 'medium' | 'low'，根据用户的输入，来判断这里的信任度，比如用户可能就没有给确定的路径，那这里的信任度就比较低
+  
+  返回示例:
+
+  请严格按照以下 JSON 格式返回【注意: 不要有其他内容, 下一步将会对这个输出做直接使用, 比如: JSON.parse(res.content), 千万不需要携带 \`\`\`json 或者一些解释以及其他内容, 否则会解析失败】:
+  {
+    "summary": "...",
+    "motivation": "...",
+    "suspectedFiles": ["file1", "file2", "..."]
+    "searchHypothesis": {
+      "fileNameHints": ["file1", "file2", "..."],
+      "dirNameHints": ["dir1", "dir2", "..."],
+      "entryHints": ["entry1", "entry2", "..."],
+      "semanticHints": ["semantic1", "semantic2", "..."]
+    },
+    "confidence": "..."
+  }
+`)
 
 
 export async function changeIntentNode(state: AgentState) {
-  const message = [
-    new SystemMessage(`
-      你是一个代码库变更意图分析助手。
-      任务: 
-      - 从用户的自然语言中, 生成一个【变更意图 + 搜索假设】对象
 
-      请注意:
-      1. 不需要确认任何文件是否真实存在
-      2. 所有路径、文件名、目录都只是"搜索线索"
-      3. 输出将用于后续的代码库验证与影响分析
-      4. 不要写代码
+  // 构建消息
+  const buildMessage = new RunnableLambda({
+    func: (state: AgentState) => {
+      return [
+        systemMessage,
+        ...state.messages,
+      ]
+    }
+  })
 
-      请输出以下字段:
 
-     【意图层】
-      - summary: 对话意图总结, 用一句话概括用户的变更意图
-      - motivation: 当前对话的动机, 解释为什么要进行这个变更
-      - suspectedFiles: 用户可能直接提到的文件或路径（如果没有则为空数组）
+  // 内容集成
+  let content = ''
+  const stringParser = new StringOutputParser()
+  // 创建 chain
+  const chain = buildMessage.pipe(model).pipe(stringParser)   
+  const res = await chain.stream(state)
+  for await (const chunk of res) {
+    content += chunk ?? ''
+    process.stdout.write(chunk)
+  }
+  
+  const changeIntent: ChangeIntent = JSON.parse(content as string || '{}') as unknown as ChangeIntent
 
-     【搜索假设层】
-      - fileNameHints: 可能的组件名、文件名、符号名
-      - dirNameHints: 可能的目录或逻辑区域（如 components、icons 等概念性区域）
-      - entryHints: 可能引用该组件的入口（如 App、Layout、Page 等）
-      - semanticHints: 可用于搜索的语义关键词（偏抽象，不是业务词）
-
-     【整体】
-      - confidence: 信任度, 可选值有 'high' | 'medium' | 'low'，根据用户的输入，来判断这里的信任度，比如用户可能就没有给确定的路径，那这里的信任度就比较低
-      
-      返回示例:
-
-      请严格按照以下 JSON 格式返回【注意: 不要有其他内容, 下一步将会对这个输出做直接使用, 比如: JSON.parse(res.content), 千万不需要携带 \`\`\`json 或者一些解释以及其他内容, 否则会解析失败】:
-      {
-        "summary": "...",
-        "motivation": "...",
-        "suspectedFiles": ["file1", "file2", "..."]
-        "searchHypothesis": {
-          "fileNameHints": ["file1", "file2", "..."],
-          "dirNameHints": ["dir1", "dir2", "..."],
-          "entryHints": ["entry1", "entry2", "..."],
-          "semanticHints": ["semantic1", "semantic2", "..."]
-        },
-        "confidence": "..."
-      }
-    `),
-    ...state.messages,
-  ]
-  const res = await model.invoke(message)
-  const changeIntent: ChangeIntent = JSON.parse(res.content as string || '{}') as unknown as ChangeIntent
-  console.error('==== CHANGE INTENT NODE OUTPUT ====', changeIntent)
+  process.stdout.write('\n\n')
 
   return {
-    changeIntent,
+    changeIntent: changeIntent,
   }
 
 }

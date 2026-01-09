@@ -100,18 +100,20 @@ export async function validationNode(state: AgentState) {
   // 计算证据强度
   const validatedFiles = Array.from(evidenceMap.entries()).map(
     ([file, signals]) => {
-      const score = Math.min(
-        1,
-        signals.reduce(
-          (sum, s) => sum + s.weight * s.confidence,
-          0
-        )
-      )
+      // const score = Math.min(
+      //   1,
+      //   signals.reduce(
+      //     (sum, s) => sum + s.weight * s.confidence,
+      //     0
+      //   )
+      // )
 
-      const level =
-        score >= 0.7 ? 'strong'
-        : score >= 0.4 ? 'medium'
-        : 'weak'
+      // const level =
+      //   score >= 0.7 ? 'strong'
+      //   : score >= 0.4 ? 'medium'
+      //   : 'weak'
+
+      const { level, score } = aggregateEvidence(signals)
 
       return {
         file,
@@ -121,6 +123,10 @@ export async function validationNode(state: AgentState) {
   )
   
   // 最终返回结果 - 携带证据信息的验证结果
+  console.error('===== validationNode validatedFiles =====', validatedFiles)
+  console.error('===== validationNode hasAnchor =====', validatedFiles.some(
+    f => f.evidence.level === 'strong'
+  ))
   return {
     validation: {
       validatedFiles,
@@ -130,6 +136,61 @@ export async function validationNode(state: AgentState) {
     }
   }
   
+}
+
+function aggregateEvidence(signals: EvidenceSignal[]) {
+  const hasPath = signals.some(s => s.type === 'path_exists')
+
+  const contentSignals = signals.filter(
+    s => s.type === 'content_anchor'
+  )
+
+  const semanticSignals = signals.filter(
+    s => s.type === 'semantic_confirm'
+  )
+
+  // content anchor 的最强一个
+  const bestContent = contentSignals.reduce(
+    (max, s) => Math.max(max, s.confidence),
+    0
+  )
+
+  // semantic 只能加分
+  const semanticBoost = semanticSignals.reduce(
+    (max, s) => Math.max(max, s.confidence),
+    0
+  )
+
+  // ---------- 判级逻辑 ----------
+
+  // strong：真实存在 + 明确锚点
+  if (hasPath && bestContent >= 0.6) {
+    return {
+      level: 'strong',
+      score: 0.8 + semanticBoost * 0.2
+    }
+  }
+
+  // medium：任一强事实
+  if (hasPath || bestContent >= 0.7) {
+    return {
+      level: 'medium',
+      score: 0.5 + semanticBoost * 0.2
+    }
+  }
+
+  // weak：只有弱语义
+  if (semanticBoost >= 0.6) {
+    return {
+      level: 'weak',
+      score: 0.3
+    }
+  }
+
+  return {
+    level: 'weak',
+    score: 0.1
+  }
 }
 
 let hasRg: boolean | null = null
@@ -374,6 +435,7 @@ async function semanticConfirmFiles(
 
 /**
  * @zh 验证 intent 中的 suspectedFiles 是否存在
+ * 支持相对路径和绝对路径，返回规范化的绝对路径
  */
 async function validateSuspectedFiles(files: string | string[]) {
   const filesArray = Array.isArray(files) ? files : [files]
@@ -381,12 +443,16 @@ async function validateSuspectedFiles(files: string | string[]) {
 
   for(const file of filesArray) {
     try {
-      const stat = await fs.stat(file)
+      // 将相对路径解析为绝对路径
+      const absolutePath = path.resolve(process.cwd(), file)
+      const normalizedPath = path.normalize(absolutePath)
+
+      const stat = await fs.stat(normalizedPath)
       if(stat.isFile()) {
         confirmedFiles.add(file)
       }
     } catch(error) {
-      // 忽略
+      // 忽略不存在的文件
     }
   }
   return Array.from(confirmedFiles)

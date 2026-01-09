@@ -36,15 +36,24 @@ const ChangeIntent = z.object({
 
 export type ChangeIntent = z.infer<typeof ChangeIntent>
 
+const ImpactedFile = z.object({
+  file: z.string().describe("文件路径"),
+  reason: z.enum(['import', 'export', 'reexport', 'runtime']).describe("影响原因"),
+  confidence: z.number().describe("信心度"),
+})
+
+export type ImpactedFile = z.infer<typeof ImpactedFile>
+
 // 分析层
 const ImpactAnalysis = z.object({
   confirmedFiles: z.array(z.string()).describe("确认相关的文件路径列表"), // 真正存在、且与变更直接相关的文件
-  affectedModules: z.array(z.string()).describe("从 import/使用关系 推倒出来的模块列表"), // 从 import/使用关系 推倒出来的模块
-  scope: z.enum(['local', 'cross-module', 'global']).describe("最终裁决权"), // 'local' | 'cross-module' | 'global'
-  confidence: z.enum(['high', 'medium', 'low']).describe("对自己判断的把握程度"), // 对自己判断的把握程度，比如用户可能就没有给确定的路径，那这里的信任度就比较低
+  affectedModules: z.array(ImpactedFile).describe("从 import/使用关系 推倒出来的模块列表"), // 从 import/使用关系 推倒出来的模块
+  blastRadius: z.enum(['small', 'medium', 'large']).describe("影响范围"),
+  notes: z.string().describe("给上层 agent / UI 的解释"), // 给上层 agent / UI 的解释
 })
 
 export type ImpactAnalysis = z.infer<typeof ImpactAnalysis>
+
 
 // 验证
 const Validation = z.object({
